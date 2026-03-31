@@ -12,7 +12,7 @@ fi
 BIN_PATH="$BIN_DIR/$APP_NAME"
 
 echo "Building $APP_NAME..."
-go build -o "$APP_NAME" main.go
+go build -o "$APP_NAME" cmd/pather/main.go
 
 echo "Installing to $BIN_PATH..."
 sudo mkdir -p "$BIN_DIR"
