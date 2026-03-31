@@ -18,8 +18,11 @@ func main() {
 	saveMode := flag.Bool("s", false, "save mode")
 	runMode := flag.Bool("r", false, "run saved path")
 	deleteMode := flag.Bool("d", false, "delete a saved nickname from a block")
-	block := flag.String("b", "", "block name")
+	listBlocksMode := flag.Bool("b", false, "list blocks or entries in a block")
+	block := flag.String("block", "", "block name")
 	nickname := flag.String("n", "", "nickname inside the block")
+
+	flag.Parse()
 
 	flag.Usage = func() {
 		fmt.Println(`pather - save, list, and run tool paths
@@ -41,12 +44,13 @@ Usage:
     pather -d -b <block> -n <nickname>
 
 Examples:
-  pather -s -b xcode -n stable /Applications/Xcode.app
+
   pather -s -b tools -n go /opt/homebrew/bin/go
   pather -b
   pather -b xcode
-  pather -r -b tools -n go version
-  pather -d -b tools -n go
+  pather -s -block xcode -n stable /Applications/Xcode.app
+  pather -r -block tools -n go version
+  pather -d -block tools -n go
 `)
 	}
 
@@ -70,10 +74,19 @@ Examples:
 		if err := handleDelete(store, storePath, *block, *nickname); err != nil {
 			exitErr(err)
 		}
-	default:
-		if err := handleList(store, os.Args[1:]); err != nil {
-			exitErr(err)
+	case *listBlocksMode:
+		args := flag.Args()
+		if len(args) == 0 {
+			listBlocks(store)
+			return
 		}
+		if len(args) == 1 {
+			listBlockEntries(store, args[0])
+			return
+		}
+		exitErr(errors.New("too many arguments for -b"))
+	default:
+		flag.Usage()
 	}
 }
 
